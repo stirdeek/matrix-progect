@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1747763586 source:c:\progectmatrix\matrix_core.c
+1747764881 source:c:\progectmatrix\matrix_core.c
 	"matrix_core.h"
 	<stdlib.h>
 	<stdio.h>
@@ -8,7 +8,7 @@
 1747763817 c:\progectmatrix\matrix_core.h
 	<stddef.h>
 
-1747763832 source:c:\progectmatrix\main.c
+1747766034 source:c:\progectmatrix\main.c
 	"matrix_core.h"
 	"matrix_special.h"
 	<stdio.h>
@@ -17,7 +17,7 @@
 1747763735 c:\progectmatrix\matrix_special.h
 	"matrix_core.h"
 
-1747763871 source:c:\progectmatrix\matrix_special.c
+1747766280 source:c:\progectmatrix\matrix_special.c
 	"matrix_special.h"
 	"matrix_ops.h"
 	<math.h>
@@ -26,7 +26,7 @@
 1747763702 c:\progectmatrix\matrix_ops.h
 	"matrix_core.h"
 
-1747764013 source:c:\progectmatrix\matrix_ops.c
+1747765797 source:c:\progectmatrix\matrix_ops.c
 	"matrix_ops.h"
 	<math.h>
 	<string.h>

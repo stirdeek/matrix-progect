@@ -3,41 +3,82 @@
 #include <math.h>
 #include <float.h>
 
-matrix* matrix_exp(const matrix* m, double eps) {
-    if (m->rows != m->cols) return NULL;
+matrix* matrix_exp(const matrix* A, double eps) {
+    if (A->rows != A->cols) return NULL;
 
-    matrix* result = matrix_identity(m->rows);
-    matrix* term = matrix_copy(m);
-    if (!result || !term) goto error;
+    // Проверяем, является ли матрица диагональной
+    int is_diagonal = 1;
+    for (size_t i = 0; i < A->rows; i++) {
+        for (size_t j = 0; j < A->cols; j++) {
+            if (i != j && fabs(matrix_get(A, i, j)) > DBL_EPSILON) {
+                is_diagonal = 0;
+                break;
+            }
+        }
+        if (!is_diagonal) break;
+    }
 
+    if (is_diagonal) {
+        // Оптимизированный расчет для диагональной матрицы
+        matrix* result = matrix_identity(A->rows);
+        if (!result) return NULL;
+
+        for (size_t i = 0; i < A->rows; i++) {
+            double diag_val = matrix_get(A, i, i);
+            double exp_val = 1.0;
+            double term = 1.0;
+            int k = 1;
+
+            while (fabs(term) >= eps) {
+                term *= diag_val / k;
+                exp_val += term;
+                k++;
+            }
+            matrix_set(result, i, i, exp_val);
+        }
+        return result;
+    }
+
+    // Общий случай для недиагональных матриц
+    matrix* result = matrix_identity(A->rows);
+    matrix* term = matrix_identity(A->rows);
     double factorial = 1.0;
-    unsigned n = 1;
+    int k = 1;
 
-    while (matrix_norm(term) >= eps) {
-        if (matrix_add(result, term) != 0) goto error;
-
-        matrix* new_term = matrix_create(m->rows, m->cols);
-        if (!new_term || matrix_mul(new_term, term, m) != 0) {
-            matrix_free(new_term);
-            goto error;
+    while (1) {
+        // Вычисляем следующий член: term = term * A / k
+        matrix* next_term = matrix_create(A->rows, A->cols);
+        if (!next_term || matrix_mul(next_term, term, A) != 0) {
+            matrix_free(next_term);
+            matrix_free(result);
+            matrix_free(term);
+            return NULL;
         }
 
         matrix_free(term);
-        term = new_term;
+        term = next_term;
+        matrix_scalar_div(term, k);
+        factorial *= k;
 
-        n++;
-        factorial *= n;
-        matrix_scalar_div(term, factorial);
+        // Проверяем условие остановки
+        if (matrix_norm(term) < eps) {
+            matrix_free(term);
+            break;
+        }
+
+        // Добавляем член к результату
+        if (matrix_add(result, term) != 0) {
+            matrix_free(result);
+            matrix_free(term);
+            return NULL;
+        }
+
+        k++;
     }
 
-    matrix_free(term);
     return result;
-
-error:
-    matrix_free(result);
-    matrix_free(term);
-    return NULL;
 }
+
 
 matrix* matrix_solve_gauss(const matrix* A, const matrix* b) {
     if (!A || !b || A->rows != A->cols || A->rows != b->rows || b->cols != 1)

@@ -4,6 +4,7 @@
 #include <assert.h>
 
 matrix* matrix_create(size_t rows, size_t cols) {
+    if (rows == 0 || cols == 0) return NULL;
     matrix* m = malloc(sizeof(matrix));
     if (!m) return NULL;
 
